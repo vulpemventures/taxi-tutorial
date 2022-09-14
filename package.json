@@ -1,0 +1,15 @@
+{
+  "name": "taxi-tutorial",
+  "version": "1.0.0",
+  "description": "Tutorial for usage of Taxi APIs",
+  "main": "index.js",
+  "repository": "git@github.com:vulpemventures/taxi-tutorial.git",
+  "author": "altafan <18440657+altafan@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}
