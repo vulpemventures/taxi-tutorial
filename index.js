@@ -1,6 +1,7 @@
 const axios = require('axios');
 
 const taxiBaseUrl = 'https://stage-api.liquid.taxi';
+const usdt = 'f3d1ec678811398cd2ae277cbe3849c6f6dbd72c74bc542f7c4b11ff0e820958';
 
 const fetchAssets = async () => {
   const { data, status } = await axios.get(`${taxiBaseUrl}/v1/assets`);
@@ -11,7 +12,12 @@ const fetchAssets = async () => {
   if (assets.length === 0) {
     throw new Error('Taxi list of supported assets is empty');
   }
-  return assets
+  return assets;
+}
+
+const assetSupportedByTaxi = async (target) => {
+  const assets = await fetchAssets();
+  return assets.find(a => a === target) !== undefined;
 }
 
 const fetchTopupWithAsset = async (targetAsset) => {
@@ -22,24 +28,18 @@ const fetchTopupWithAsset = async (targetAsset) => {
   if (status !== 200) {
     throw new Error(data.message);
   }
-  return data
+  return data;
 }
 
 async function main() {
   try {
-    // Retrieve the list of supported assets.
-    console.log('Retrieve list of supported assets');
-    const assets = await fetchAssets();
-    console.log('[');
-    assets.forEach(v => {
-      console.log(` "${v}",`);
-    });
-    console.log(']');
+    if (!await assetSupportedByTaxi(usdt)) {
+      throw new Error('Taxi does not support usdt as topup service fee');
+    }
 
-    // Request a topup for one of the supported assets.
-    const targetAsset = assets[0];
-    console.log(`\nRequesting topup for asset ${targetAsset}`)
-    const topup = await fetchTopupWithAsset(targetAsset);
+    // Request a topup for USDt asset.
+    console.log(`Requesting topup for asset ${usdt}`)
+    const topup = await fetchTopupWithAsset(usdt);
 
     // If for example, you request a topup with asset USDt, you can transfer your
     // USDt funds to somebody without having LBTCs to pay for network fees.
@@ -48,10 +48,10 @@ async function main() {
     // You can only add inputs and outputs to the given transaction. Trying to
     // change the existing inputs or outputs will invalidate the signature of the
     // input added by Taxi.
-    console.log('Topup details:', topup);
+    console.log('\nTopup details:', topup);
   } catch(e) {
     console.error(e);
   }
 }
 
-main()
+main();
